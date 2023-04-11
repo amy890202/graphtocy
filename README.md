@@ -1,2 +1,2 @@
 # graphtocy
-python grapn2cy.py --path graph.json
+python grapn2cy.py -i dump.graph
