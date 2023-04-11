@@ -1,10 +1,12 @@
+#!/usr/bin/python3
 import argparse
 import datetime
 import json
-eid_dict = {"FileWrite":1,"Launch":1,"DnsQuery":1,"Terminate":1,"RegistryModify":1}
+
 def readfile(path):
     with open(path,'r',encoding='utf-8-sig') as f:
         input_json = json.load(f)
+        #print(input_json[0])
     return input_json
 
 def find_ancestor_node(edges):
@@ -23,7 +25,8 @@ def find_ancestor_node(edges):
         if initiator_id not in incoming_edges or \
                 (len(incoming_edges[initiator_id]) == 1 and initiator_id in incoming_edges[initiator_id]):
             #ancestor = initiator_id
-            ancestor_list.append(initiator_id)
+            if initiator_id not in ancestor_list:
+                ancestor_list.append(initiator_id)
             #print("Ancestor Node: ", ancestor)
         # elif (len(incoming_edges[initiator_id]) == 1 and initiator_id in incoming_edges[initiator_id]):
         #     ancestor = initiator_id
@@ -34,7 +37,7 @@ def find_ancestor_node(edges):
 
 
 
-def parse(input_json):
+def parse(input_json, output_file):
     notedata_id={}
     # Extract the 'nodes' dictionary from the input JSON
     nodes = input_json.get('nodes', {})
@@ -50,9 +53,9 @@ def parse(input_json):
             continue  # Skip non-dictionary objects
 
         properties = node_data.get('data', {}).get('properties', {})
-        node_type = node_data.get('__name__', '')
-        node_class = node_data.get('_node_class', '')
-        display = node_data.get('process_image', '')
+        node_type = node_data.get('__type__', '')
+        node_class = node_data.get('__type__', '')
+        display = node_data.get('__name__', '')
         color = node_data.get('__color__', '')
 
         # Extract the relevant properties from the 'properties' dictionary
@@ -70,8 +73,10 @@ def parse(input_json):
         #process_path =  node_data.get('process_path', '')
         node_data_dict = {}
         for i in node_data:
-            if i == "__name__" or i == "__color__":
+            if i in ['__name__', '__color__', '__type__']:
                 continue
+            # if i == "__name__" or i == "__color__":
+            #     continue
             node_data_dict[i] = node_data.get(i, '')
         node_data_dict['id'] = str(nodeno)
         #print(node_data_dict)
@@ -109,7 +114,7 @@ def parse(input_json):
     for edge in input_json["edges"]:
         eid = ""
         try:
-            eid = str(eid_dict[edge["__name__"]])
+            eid = str(edge["__event_id__"])
         except:
             print("no match eid")
             eid = ""
@@ -151,13 +156,26 @@ def parse(input_json):
     }
 
     # Save the output JSON to a file
-    with open('output.sub.cy', 'w') as f:
+    with open(output_file, 'w') as f:
         json.dump(output_json, f, indent=4)
 
 
 parser = argparse.ArgumentParser(description='ArgparseTry')
-parser.add_argument('--path',required=True,type=str)
+
+parser.add_argument(
+    "-i", "--input",
+    type=str,
+    default="elk.graph"
+)
+parser.add_argument(
+    "-o", "--output",
+    type=str,
+    default="elk.cy"
+)
+
 args = parser.parse_args()
-input_json = readfile(path=args.path)
-parse(input_json)
-print("finish output.sub.cy")
+print(args)
+
+input_json = readfile(path=args.input)
+parse(input_json, args.output)
+
