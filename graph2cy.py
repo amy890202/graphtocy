@@ -6,25 +6,7 @@ def readfile(path):
     with open(path,'r',encoding='utf-8-sig') as f:
         input_json = json.load(f)
     return input_json
-# def find_ancestor_node(edges):
-#     # Create a dictionary to keep track of incoming edges for each node
-#     incoming_edges = {}
-#     # Iterate through the list of edges to populate the incoming edges dictionary
-#     for edge in edges:
-#         initiator_id = edge["initiator_id"]#start
-#         receiver_id = edge["receiver_id"]#end
-#         if receiver_id not in incoming_edges:
-#             incoming_edges[receiver_id] = []
-#         incoming_edges[receiver_id].append(initiator_id)
-    
-#     # Find the root node, which is a node that does not have any incoming edges
-#     root_node = None
-#     for edge in edges:
-#         initiator_id = edge["initiator_id"]
-#         if initiator_id not in incoming_edges:
-#             root_node = initiator_id
-#             break
-#     return root_node
+
 def find_ancestor_node(edges):
     incoming_edges = {}
     for edge in edges:
@@ -45,7 +27,6 @@ def find_ancestor_node(edges):
             #print("Ancestor Node: ", ancestor)
         # elif (len(incoming_edges[initiator_id]) == 1 and initiator_id in incoming_edges[initiator_id]):
         #     ancestor = initiator_id
-        #     print("Ancestor: ", ancestor)
             #break
     #print("Ancestor Node: ", ancestor)
     return ancestor_list
@@ -141,7 +122,6 @@ def parse(input_json):
                     "data": {
                         "timestamp": int(datetime.datetime.fromisoformat(edge["timestamp"][:-1]).timestamp())
 
-
                     },
                     "prov_direction":edge["prov_direction"],
                     "prop_direction":edge["prop_direction"],
@@ -180,3 +160,4 @@ parser.add_argument('--path',required=True,type=str)
 args = parser.parse_args()
 input_json = readfile(path=args.path)
 parse(input_json)
+print("finish output.sub.cy")
